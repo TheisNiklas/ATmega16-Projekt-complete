@@ -44,7 +44,7 @@ void deQueue(I2C_TxRxError_t fehler)
 {
 	void (*callback) (I2C_TxRxError_t);
 	callback = liste[front].callback_function;
-	if (front == rear) // Überprüfen ob Schlange danach leer ist 
+	if (front == rear) // Überprüfen ob Schlange danach leer ist
 	{
 		front = -1;
 		rear = -1;
@@ -76,7 +76,7 @@ void deQueue(I2C_TxRxError_t fehler)
 			I2C_Error_t f;
 			f=I2C_Receive(liste[front].TxData_t,liste[front].delay_in_ms_u8, liste[front].anzahlLeseBytes);
 			if (f == I2C_ERROR)
-			{
+			{								
 				// Mappen des Grundtreiberfehlers auf einen Übertragungsfehler
 				deQueue(I2C_TXRXERROR);
 			}
@@ -104,18 +104,18 @@ I2C_Error_t I2C_Read(struct I2C_TxData_t TxData_st, uint8_t delay_in_ms_u8, uint
 		if (front == -1) //Schlange ist leer, Job direkt ausführen
 		{
 			I2C_Error_t error;
-			error = I2C_Receive(TxData_st,delay_in_ms_u8, number_of_read_bytes);
+			error = I2C_Receive(TxData_st,delay_in_ms_u8, number_of_read_bytes);			
 			if (error == I2C_ERROR)
 			{
-				 // Mappen des Grundtreiber errror auf einen Übertragungserror
-				 newJob.callback_function(I2C_TXRXERROR);
-				 return I2C_NOERROR;
+				// Mappen des Grundtreiber errror auf einen Übertragungserror
+				newJob.callback_function(I2C_TXRXERROR);
+				return I2C_NOERROR;
 				//return I2C_ERROR; //Sollte eigentlich nie passieren dürfen
 			}
+			
 			front = 0;
 			rear = (rear + 1) % MAXSIZE;
 			liste[rear] = newJob;
-
 		}
 		else //Job in die Warteschlange einreihen
 		{
@@ -140,35 +140,34 @@ I2C_Error_t I2C_Write(struct I2C_TxData_t TxData_st)
 		return I2C_ERROR;
 	}
 	else
-	 {
-		 struct job newJob;
-		 newJob.read_or_write_operation = 1; //1 für write
-		 newJob.callback_function =TxData_st.callback_function;
-		 TxData_st.callback_function = deQueue;
-		 if (front == -1) //Schlange ist leer
-		 {
-			 I2C_Error_t error;
-			 error = I2C_Transmit(TxData_st);
-			 if (error == I2C_ERROR)
-			 {
-				 // Mappen des Grundtreiber errror auf einen Übertragungserror
-				 newJob.callback_function(I2C_TXRXERROR);
-				 return I2C_NOERROR;
-				 //return I2C_ERROR;
-			 }
-			 front = 0;
-			 rear = (rear + 1) % MAXSIZE;
-			 liste[rear] = newJob;
-
-		 }
-		 else //Einreihen in die Warteschlange
-		 {
-			 newJob.TxData_t = TxData_st;
-			 rear = (rear + 1) % MAXSIZE;
-			 liste[rear] = newJob;
-		 }
-		 return I2C_NOERROR;
-	 }
+	{		
+		struct job newJob;
+		newJob.read_or_write_operation = 1; //1 für write
+		newJob.callback_function =TxData_st.callback_function;
+		TxData_st.callback_function = deQueue;
+		if (front == -1) //Schlange ist leer
+		{			
+			I2C_Error_t error;
+			error = I2C_Transmit(TxData_st);			
+			if (error == I2C_ERROR)
+			{
+				// Mappen des Grundtreiber errror auf einen Übertragungserror
+				newJob.callback_function(I2C_TXRXERROR);
+				return I2C_NOERROR;
+				//return I2C_ERROR;
+			}
+			front = 0;
+			rear = (rear + 1) % MAXSIZE;
+			liste[rear] = newJob;
+		}
+		else //Einreihen in die Warteschlange
+		{						
+			newJob.TxData_t = TxData_st;
+			rear = (rear + 1) % MAXSIZE;
+			liste[rear] = newJob;
+		}
+		return I2C_NOERROR;
+	}
 }
 
 /*

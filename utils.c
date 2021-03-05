@@ -14,7 +14,7 @@ void ConvertFloatToCharArray(char* output, float value)
 
 	int integer = absVal;
 	float fraction = absVal - integer;
-	int fractionInt = trunc(fraction * 10000);
+	int fractionInt = trunc(fraction * 100);
 
-	sprintf (output, "%s%d.%04d", sign, integer, fractionInt);
+	sprintf (output, "%s%d.%02d", sign, integer, fractionInt);
 }

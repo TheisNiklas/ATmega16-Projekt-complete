@@ -24,14 +24,16 @@ void CO2Output_Init(SensorData_t* sensorData, volatile uint8_t* Port, LCD_Cursor
 void CO2Output_UpdateData()
 {
 	char tmp[20];
-	ConvertFloatToCharArray(tmp, SensorData->co2_value_u16);
+	ConvertFloatToCharArray(tmp, SensorData->co2_value_f);
 	sprintf(OutputData.co2Value, "CO2: %s ppm", tmp);
-	sprintf(OutputData.humidityValue, "Humidity: %d%%", SensorData->humidity_value_u16);
-	sprintf(OutputData.temperatureValue, "Temp: %dßC", SensorData->temperature_value_u16); //ß wegen ROM Code A00
-	sprintf(OutputData.firmwareVersion, "Firmware: %d", SensorData->firmware_version_u16);
+	ConvertFloatToCharArray(tmp, SensorData->humidity_value_f);
+	sprintf(OutputData.humidityValue, "Humidity: %s%%", tmp);
+	ConvertFloatToCharArray(tmp, SensorData->temperature_value_f);
+	sprintf(OutputData.temperatureValue, "Temp: %sßC", tmp); //ß wegen ROM Code A00
+	sprintf(OutputData.firmwareVersion, "Firmware: %d.%d", (SensorData->firmware_version_u16 >> 8), (SensorData->firmware_version_u16 & 0xFF));
 	if (SensorData->MeasState_en == 1) sprintf(OutputData.measState, "MeasState: On");
 	else sprintf(OutputData.measState, "MeasState: Off");
-	if (SensorData->AutocalibMode_en == 1) sprintf(OutputData.autocalibMode, "MeasState: On");
+	if (SensorData->AutocalibMode_en == 1) sprintf(OutputData.autocalibMode, "AutoCalib: On");
 	else sprintf(OutputData.autocalibMode, "AutoCalib: Off");
 	//LineList = (char*) &OutputData;
 	LCD_UpdateData((char*) &OutputData, MAX_CHAR_COUNT, 6);
@@ -52,11 +54,11 @@ void CO2Output_MoveDown()
 void CO2Output_UpdateLEDs()
 {
 	PORTD &= 0b10001111;
-	if (SensorData->co2_value_u16 < 350)
+	if (SensorData->co2_value_f < 350)
 	{
 		PORTD |= 0b01000000;
 	}
-	else if (SensorData->co2_value_u16 >= 350 && SensorData->co2_value_u16 <= 380)
+	else if (SensorData->co2_value_f >= 350 && SensorData->co2_value_f <= 380)
 	{
 		PORTD |= 0b00100000;
 	}

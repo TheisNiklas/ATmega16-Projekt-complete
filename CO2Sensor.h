@@ -1,7 +1,7 @@
 #pragma once
 
 #include "I2C_Driver.h"
-#include "CRC/SCD30_CRC.h"
+#include "SCD30_CRC.h"
 #define CO2_ADDRESS 0x61
 #define CO2_DELAY_TIME 4
 
@@ -35,7 +35,7 @@ typedef enum CO2_MeasurementState_t CO2_MeasurementState_t;
 
 struct SensorData_t
 {
-	//uint8_t new_data_available_u8;
+	uint16_t new_data_available_u16;
 	float co2_value_f;
 	float humidity_value_f;
 	float temperature_value_f;
@@ -60,7 +60,8 @@ SensorConfigData_t *SensorConfigDataCO2;
 
 CO2_Error_t CO2_InitSensor(SensorData_t *SensorData_st);
 CO2_Error_t CO2_ConfigSensor(SensorConfigData_t *SensorConfigData_st);
-CO2_Error_t CO2_UpdateMeasData(void); 
+CO2_Error_t CO2_GetDataReadyStatus(void); 
+CO2_Error_t CO2_GetMeasurementData(void);
 CO2_Error_t CO2_UpdateSensorParameterData(void); 
 CO2_Error_t CO2_StartMeasurement(uint16_t Ambient_Pressure_in_mBar);
 CO2_Error_t CO2_StopMeasurement(void);
@@ -68,5 +69,7 @@ CO2_Error_t CO2_StartAutoCalibrationMode(void);
 CO2_Error_t CO2_StopAutoCalibrationMode(void);
 CO2_Error_t CO2_SetCO2CalibrationValue(uint16_t Co2_concentration_in_ppm);
 CO2_Error_t CO2_SoftReset(void);
+
+
 
 
