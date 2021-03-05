@@ -187,6 +187,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="SCD30_CRC.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="SCD30_CRC.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Timer.c">
       <SubType>compile</SubType>
     </Compile>

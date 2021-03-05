@@ -1,3 +1,17 @@
+#pragma once
+
+#include "I2C_Driver.h"
+#include "CRC/SCD30_CRC.h"
+#define CO2_ADDRESS 0x61
+#define CO2_DELAY_TIME 4
+
+//Constants for data length
+#define CO2_LEN_W_NOARG 2
+#define CO2_LEN_W_ARG 5
+#define CO2_LEN_R_VAL 3
+#define CO2_LEN_R_SENSORDATA 18
+
+
 enum CO2_Error_t
 {
 	CO2_NOERROR = 0,
@@ -22,11 +36,11 @@ typedef enum CO2_MeasurementState_t CO2_MeasurementState_t;
 struct SensorData_t
 {
 	//uint8_t new_data_available_u8;
-	float co2_value_u16;
-	float humidity_value_u16;
-	float temperature_value_u16;
+	float co2_value_f;
+	float humidity_value_f;
+	float temperature_value_f;
 	CO2_AutocalibMode_t AutocalibMode_en;
-	CO2_MeasurementState_t MeasState_en;
+	CO2_MeasurementState_t MeasState_en;	
 	uint16_t firmware_version_u16;
 };
 typedef struct SensorData_t SensorData_t;
@@ -40,14 +54,19 @@ struct SensorConfigData_t
 };
 typedef struct SensorConfigData_t SensorConfigData_t;
 
+
+SensorData_t *SensorDataCO2;
+SensorConfigData_t *SensorConfigDataCO2;
+
 CO2_Error_t CO2_InitSensor(SensorData_t *SensorData_st);
 CO2_Error_t CO2_ConfigSensor(SensorConfigData_t *SensorConfigData_st);
-CO2_Error_t CO2_StartMeasurement(void);
+CO2_Error_t CO2_UpdateMeasData(void); 
+CO2_Error_t CO2_UpdateSensorParameterData(void); 
+CO2_Error_t CO2_StartMeasurement(uint16_t Ambient_Pressure_in_mBar);
 CO2_Error_t CO2_StopMeasurement(void);
-CO2_Error_t CO2_UpdateMeasData(void);
-CO2_Error_t CO2_UpdateSensorParameterData(void);
 CO2_Error_t CO2_StartAutoCalibrationMode(void);
 CO2_Error_t CO2_StopAutoCalibrationMode(void);
 CO2_Error_t CO2_SetCO2CalibrationValue(uint16_t Co2_concentration_in_ppm);
+CO2_Error_t CO2_SoftReset(void);
 
 
