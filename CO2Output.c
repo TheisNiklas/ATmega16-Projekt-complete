@@ -54,11 +54,11 @@ void CO2Output_MoveDown()
 void CO2Output_UpdateLEDs()
 {
 	PORTD &= 0b10001111;
-	if (SensorData->co2_value_f < 350)
+	if (SensorData->co2_value_f < 1000.0f)
 	{
 		PORTD |= 0b01000000;
 	}
-	else if (SensorData->co2_value_f >= 350 && SensorData->co2_value_f <= 380)
+	else if (SensorData->co2_value_f >= 1000.0f && SensorData->co2_value_f <= 2000.0f)
 	{
 		PORTD |= 0b00100000;
 	}

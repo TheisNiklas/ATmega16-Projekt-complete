@@ -104,7 +104,7 @@ Timer_Error_t Timer_calculateTimerSettings_s(uint16_t* compareAValue, Timer_Cloc
 	return NoError;
 }
 
-Timer_Error_t Timer_calculateTimerSettings_ms(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint8_t ms)
+Timer_Error_t Timer_calculateTimerSettings_ms(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint16_t ms)
 {
 	uint16_t prescaler[5] = {1, 8, 64, 256, 1024};
 	Timer_ClockSignal_t clockSignals[5] = {CSSystemClock, CSSystemClockDiv8, CSSystemClockDiv64, CSSystemClockDiv256, CSSystemClockDiv1024};

@@ -21,8 +21,8 @@ typedef enum CO2_Error_t CO2_Error_t;
 
 enum CO2_AutocalibMode_t
 {
-	CO2_AUTOCAL_INACTIVE = 0,
-	CO2_AUTOCAL_ACTIVE = 1
+	CO2_AUTOCAL_INACTIVE = 0x00,
+	CO2_AUTOCAL_ACTIVE = 0x01
 };
 typedef enum CO2_AutocalibMode_t CO2_AutocalibMode_t;
 
@@ -58,8 +58,8 @@ typedef struct SensorConfigData_t SensorConfigData_t;
 SensorData_t *SensorDataCO2;
 SensorConfigData_t *SensorConfigDataCO2;
 
-CO2_Error_t CO2_InitSensor(SensorData_t *SensorData_st);
-CO2_Error_t CO2_ConfigSensor(SensorConfigData_t *SensorConfigData_st);
+CO2_Error_t CO2_InitSensor(SensorData_t *SensorData_st, SensorConfigData_t *SensorConfigData_st);
+CO2_Error_t CO2_ConfigSensor();
 CO2_Error_t CO2_GetDataReadyStatus(void); 
 CO2_Error_t CO2_GetMeasurementData(void);
 CO2_Error_t CO2_UpdateSensorParameterData(void); 
@@ -69,6 +69,7 @@ CO2_Error_t CO2_StartAutoCalibrationMode(void);
 CO2_Error_t CO2_StopAutoCalibrationMode(void);
 CO2_Error_t CO2_SetCO2CalibrationValue(uint16_t Co2_concentration_in_ppm);
 CO2_Error_t CO2_SoftReset(void);
+void CO2_GetTemperatureOffset(void);
 
 
 

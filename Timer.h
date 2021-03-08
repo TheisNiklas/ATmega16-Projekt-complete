@@ -43,4 +43,4 @@ Timer_Error_t Timer_addInterrupt(enum Timer_Interrupt_t interrupt, volatile uint
 Timer_Error_t Timer_removeInterrupt(enum Timer_Interrupt_t interrupt);
 
 Timer_Error_t Timer_calculateTimerSettings_s(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint8_t seconds);
-Timer_Error_t Timer_calculateTimerSettings_ms(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint8_t ms);
+Timer_Error_t Timer_calculateTimerSettings_ms(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint16_t ms);

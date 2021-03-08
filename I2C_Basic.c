@@ -122,7 +122,7 @@ I2C_Error_t I2C_Receive(struct I2C_TxData_t TxData_st, uint8_t delay_in_ms_u8, u
 */
 I2C_Error_t I2C_Read_Data(uint8_t *data, uint8_t dataSize)
 {
-	if (dataSize < I2C_BUFFER_SIZE && !I2C_Busy())
+	if (dataSize < I2C_BUFFER_SIZE && !I2C_Busy() && transmit_in_progress == 0)
 	{
 		for (uint8_t i=0; i<dataSize;i++)
 		{

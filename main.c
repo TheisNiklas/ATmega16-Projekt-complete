@@ -8,6 +8,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 #include <util/delay.h>
+#include <string.h>
 #include "CO2Output.h"
 #include "Timer.h"
 #include "utils.h"
@@ -47,7 +48,13 @@ int main(void)
 	DDRD = 0b01110100;
 	DDRA = 0xff;
 	struct SensorData_t sensorData;
-	
+	struct SensorConfigData_t Sensorconfig =
+	{
+		.altitude_in_m_u16 = 0,
+		.meas_interval_in_sec_u16 = 2,
+		.ambient_pressure_in_mbar_u16 = 0,
+		.temp_offset_u16 = 0
+	};
 	CO2Output_Init(&sensorData, &LCDPORT, CursorOff, NoAlign);
 	
 	struct Timer_Settings_t timerSettings =
@@ -56,17 +63,18 @@ int main(void)
 		.PWNCOM1A = NoPWM,
 	};
 	uint16_t CompA = 0;
-	Timer_calculateTimerSettings_s(&CompA, &(timerSettings.ClockSignal), 2);
+	Timer_calculateTimerSettings_ms(&CompA, &(timerSettings.ClockSignal), 3000);
 	
 	Timer_init(CompA, 0, timerSettings);
 	Timer_addInterrupt(InterruptCompareA, &timerInterruptFlag);
-	
+
+		
 	//TODO: InitSensor with Pointer
-	CO2_InitSensor(&sensorData);
+	CO2_InitSensor(&sensorData, &Sensorconfig);
 	//Config
+	CO2_ConfigSensor();
 	CO2_StartMeasurement(0);
 	CO2_UpdateSensorParameterData();
-	CO2_StopMeasurement();
 
 	while(1)
 	{
@@ -77,9 +85,10 @@ int main(void)
 			if(sensorData.new_data_available_u16)
 			{
 				CO2_GetMeasurementData();
+				CO2Output_UpdateData();
 				
 			}
-			CO2Output_UpdateData();
+			
 			
 			if (timerLEDOutput)
 			{

@@ -6,26 +6,13 @@
  */ 
 #include <avr/io.h>
 #include <stdlib.h>
+#include <string.h>
 #include "CO2Sensor.h"
-#include "LCD.h"
-uint8_t counter = 0;
 
 void Callback(I2C_TxRxError_t error)
 {
-	
-	if (error == I2C_TXRXERROR){
-		PORTA = 0x0F;
-	}
-	else {
-		counter++;
-		PORTA = counter;
-		
-	}
-	
 	return;
 }
-
-
 
 CO2_Error_t CO2_StartMeasurement(uint16_t Ambient_Pressure_in_mBar)
 {
@@ -42,7 +29,8 @@ CO2_Error_t CO2_StartMeasurement(uint16_t Ambient_Pressure_in_mBar)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);
+	//SendData_t.TxBytes = txbytes;
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -57,7 +45,8 @@ CO2_Error_t CO2_StopMeasurement(void)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_NOARG);
+	//SendData_t.TxBytes = txbytes;
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -76,7 +65,8 @@ CO2_Error_t CO2_SetMeasurementInterval(uint16_t Interval_in_s)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);	
 	SendData_t.callback_function = &Callback;
 		
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -101,7 +91,8 @@ void CO2_GetMeasurementInterval(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);	
 	SendData_st.callback_function = &CO2_CB_ReceiveMeasurementInterval;
 	
 	I2C_Read(SendData_st, CO2_DELAY_TIME,CO2_LEN_R_VAL);
@@ -140,8 +131,9 @@ CO2_Error_t CO2_GetMeasurementData(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
-	SendData_st.callback_function = &CO2_CB_ReceiveSensorData;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
+	SendData_st.callback_function = CO2_CB_ReceiveSensorData;
 	
 	I2C_Error_t Error = I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_SENSORDATA);
 	return Error;
@@ -157,13 +149,7 @@ void CO2_CB_ReceiveDataReadyStatus(I2C_TxRxError_t error)
 	if (calc_CRC_8(DRS) != rxBytes[2]) return; // Checksum doesn't match
 	
 	SensorDataCO2->new_data_available_u16 = DRS;
-	
-	/*if (DRS == 0x0001)
-	{
-		//Data is ready, time to collect
-		CO2_GetMeasurementData();
-	}*/
-	// Data not ready, do nothing
+
 }
 CO2_Error_t CO2_GetDataReadyStatus(void)
 {
@@ -172,8 +158,9 @@ CO2_Error_t CO2_GetDataReadyStatus(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
-	SendData_st.callback_function = &CO2_CB_ReceiveDataReadyStatus;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
+	SendData_st.callback_function = CO2_CB_ReceiveDataReadyStatus;
 	
 	I2C_Error_t Error = I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_VAL);
 	return Error;
@@ -185,7 +172,8 @@ CO2_Error_t CO2_StartAutoCalibrationMode(void)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -198,13 +186,13 @@ CO2_Error_t CO2_StopAutoCalibrationMode(void)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
 	return Error;
 }
-
 void CO2_CB_ReceiveAutoCalibrationMode(I2C_TxRxError_t error)
 {
 	if(error == I2C_TXRXERROR) return; // No data available
@@ -232,7 +220,8 @@ void CO2_GetAutoCalibrationMode(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
 	SendData_st.callback_function = &CO2_CB_ReceiveAutoCalibrationMode;
 	
 	I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_VAL);
@@ -250,13 +239,13 @@ CO2_Error_t CO2_SetCO2CalibrationValue(uint16_t Co2_concentration_in_ppm)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
 	return Error;
 }
-/* NOT USED YET
 void CO2_CB_ReceiveCO2CalibrationValue(I2C_TxRxError_t error)
 {
 	if(error == I2C_TXRXERROR) return; // No data available
@@ -277,12 +266,12 @@ void CO2_GetCO2CalibrationValue(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
 	SendData_st.callback_function = &CO2_CB_ReceiveCO2CalibrationValue;
 	
 	I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_VAL);	
 }
-*/
 //Temperature is in °C * 100
 CO2_Error_t CO2_SetTemperatureOffset(uint16_t Temperature_in_C_times_100)
 {
@@ -291,7 +280,8 @@ CO2_Error_t CO2_SetTemperatureOffset(uint16_t Temperature_in_C_times_100)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;	
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -302,8 +292,7 @@ void CO2_CB_ReceiveTemperatureOffset(I2C_TxRxError_t error)
 	if(error == I2C_TXRXERROR) return; // No data available
 	
 	uint8_t rxBytes[CO2_LEN_R_VAL];
-	if(I2C_Read_Data_From_Buffer(rxBytes,CO2_LEN_R_VAL) == I2C_ERROR) return;
-	
+	if(I2C_Read_Data_From_Buffer(rxBytes,CO2_LEN_R_VAL) == I2C_ERROR) return;		
 	uint16_t TO = (uint16_t)(((uint16_t)rxBytes[0] << 8) | (uint16_t)rxBytes[1]); //Convert array to 16 Bit value
 	if (calc_CRC_8(TO) != rxBytes[2]) return; // Checksum doesn't match
 	
@@ -316,7 +305,8 @@ void CO2_GetTemperatureOffset(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
 	SendData_st.callback_function = &CO2_CB_ReceiveTemperatureOffset;
 	
 	I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_VAL);
@@ -328,7 +318,8 @@ CO2_Error_t CO2_SetAltitudeCompensation(uint16_t Altitude_in_m)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_ARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_ARG);
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -353,19 +344,20 @@ void CO2_GetAltitudeCompensation(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
 	SendData_st.callback_function = &CO2_CB_ReceiveAltitudeCompensation;
 	
 	I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_VAL);
 	
 }
 void CO2_CB_ReceiveFirmwareVersion(I2C_TxRxError_t error)
-{
+{	
 	if(error == I2C_TXRXERROR) return; // No data available
-	
+
 	uint8_t rxBytes[CO2_LEN_R_VAL];
 	if(I2C_Read_Data_From_Buffer(rxBytes,CO2_LEN_R_VAL) == I2C_ERROR) return;
-	
+
 	uint16_t FV = (uint16_t)(((uint16_t)rxBytes[0] << 8) | (uint16_t)rxBytes[1]); //Convert array to 16 Bit value
 	if (calc_CRC_8(FV) != rxBytes[2]) return; // Checksum doesn't match
 	SensorDataCO2->firmware_version_u16 = FV;
@@ -377,7 +369,8 @@ void CO2_GetFirmwareVersion(void)
 	I2C_TxData_t SendData_st;
 	SendData_st.Address = CO2_ADDRESS;
 	SendData_st.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_st.TxBytes = txbytes;
+	//SendData_st.TxBytes = txbytes;
+	memcpy(SendData_st.TxBytes,txbytes,CO2_LEN_W_NOARG);
 	SendData_st.callback_function = &CO2_CB_ReceiveFirmwareVersion;
 
 	I2C_Read(SendData_st, CO2_DELAY_TIME, CO2_LEN_R_VAL);
@@ -390,7 +383,8 @@ CO2_Error_t CO2_SoftReset(void)
 	I2C_TxData_t SendData_t;
 	SendData_t.Address = CO2_ADDRESS;
 	SendData_t.NumberOfBytes = CO2_LEN_W_NOARG;
-	SendData_t.TxBytes = txbytes;
+	//SendData_t.TxBytes = txbytes;
+	memcpy(SendData_t.TxBytes,txbytes,CO2_LEN_W_NOARG);
 	SendData_t.callback_function = &Callback;
 	
 	I2C_Error_t Error = I2C_Write(SendData_t);
@@ -402,11 +396,8 @@ CO2_Error_t CO2_UpdateSensorParameterData(void)
 	CO2_GetAutoCalibrationMode();
 	return CO2_NOERROR;	
 }
-CO2_Error_t CO2_ConfigSensor(SensorConfigData_t *SensorConfigData_st)
+CO2_Error_t CO2_ConfigSensor()
 {
-	
-	if (SensorConfigData_st == 0) return CO2_ERROR;
-	SensorConfigDataCO2 = SensorConfigData_st;
 	
 	//If Altitude is to be set, ambient pressure has to be 0
 	if (SensorConfigDataCO2->ambient_pressure_in_mbar_u16 == 0)
@@ -428,14 +419,15 @@ CO2_Error_t CO2_ConfigSensor(SensorConfigData_t *SensorConfigData_st)
 		
 	return CO2_NOERROR;		
 }
-CO2_Error_t CO2_InitSensor(SensorData_t *SensorData_st)
+CO2_Error_t CO2_InitSensor(SensorData_t *SensorData_st, SensorConfigData_t *SensorConfigData_st)
 {
 	if(SensorData_st == 0) return CO2_ERROR;
+	if(SensorConfigData_st == 0) return CO2_ERROR;
 
 	
 	// Set Pointer to local variable
 	SensorDataCO2 = SensorData_st;
-
+	SensorConfigDataCO2 = SensorConfigData_st;
 	I2C_InitModule();
 	
 	return CO2_NOERROR;

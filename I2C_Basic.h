@@ -53,7 +53,7 @@ struct I2C_TxData_t
 {
 	uint8_t Address;		// Adresse ist 7 Byte lang
 	uint8_t NumberOfBytes;  // Anzahl bytes ohne Adresse
-	uint8_t *TxBytes;		// Pointer auf Datenarray
+	uint8_t TxBytes[10];		// Datenarray
 	void (*callback_function)(I2C_TxRxError_t);
 
 };
