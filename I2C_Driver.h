@@ -28,5 +28,7 @@ I2C_Error_t I2C_Read(struct I2C_TxData_t TxData_st, uint8_t delay_in_ms_u8, uint
 
 I2C_Error_t I2C_Read_Data_From_Buffer(uint8_t *data, uint8_t data_size);
 
-//Zum Testen
+//****************************************************************************************
+
+//Nur zum Testen 
 uint8_t isEmpty();

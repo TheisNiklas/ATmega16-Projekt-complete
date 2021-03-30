@@ -71,7 +71,7 @@ I2C_Error_t I2C_Transmit(struct I2C_TxData_t TxData_st)
 	if (TxData_st.NumberOfBytes <= I2C_BUFFER_SIZE && transmit_in_progress == 0)
 	{
 		if (I2C_Busy())
-		{			
+		{
 			return I2C_ERROR; //Logik arbeitet, daher Error. 
 		}
 		transmit_in_progress = 1;
@@ -82,7 +82,7 @@ I2C_Error_t I2C_Transmit(struct I2C_TxData_t TxData_st)
 		for(uint8_t temp = 0; temp <I2C_msgSize; temp++)
 		{
 			I2C_buf[temp] = TxData_st.TxBytes[temp];
-		}	
+		}
 		I2C_SendStart();
 		return I2C_NOERROR;
 	}
@@ -165,15 +165,15 @@ ISR(TWI_vect)
 					Start_Reading();
 				}
 				else
-				{					
+				{
 					I2C_SendStop();
-					// Fertig mit der Übertragung					
+					// Fertig mit der Übertragung
 					transmit_in_progress = 0;
-					callback_R(I2C_NOTXRXERROR);
+					callback_R(I2C_NOTXRXERROR); // Aufrufen der Rückruffunktion
 				}
 			}
 			break;
-		//*************** Statuscodes Master Slave Mode *****************
+		//*************** Statuscodes Master Receiver Mode *****************
 		case I2C_MRX_DATA_ACK:
 			I2C_buf[I2C_bufPtr++] = TWDR;
 		case I2C_MRX_ADR_ACK:

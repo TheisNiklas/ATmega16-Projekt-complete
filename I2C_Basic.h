@@ -5,7 +5,7 @@
 #define I2C_BUFFER_SIZE 20 //Auf die größte zu Übertragende Nachricht setzen; CO2 Sensor braucht 18 Byte
 
 //I2C Allgemeine Status Codes
-#define I2C_START		0x08
+#define I2C_START		0x08 // Start Kondition übertragen
 #define I2C_REP_START	0x10 // Nicht implementiert, da SCD30 REP_START nicht unterstützt
 #define I2C_ARB_LOST	0x38 // Nicht implementiert
 
@@ -18,13 +18,13 @@
 // Master Receiver Status codes
 #define I2C_MRX_ADR_ACK            0x40  // SLA+R übertragen und ACK empfangen
 #define I2C_MRX_ADR_NACK           0x48  // SLA+R übertragen und NACK empfangen
-#define I2C_MRX_DATA_ACK           0x50  // Datenbyte übertragen und ACK empfangen
-#define I2C_MRX_DATA_NACK          0x58  // Datenbyte übertragen und NACK empfangen
+#define I2C_MRX_DATA_ACK           0x50  // Datenbyte empfangen und ACK übertragen
+#define I2C_MRX_DATA_NACK          0x58  // Datenbyte epmfangen und NACK übertragen
 
 
 // Allgemeine Fehler codes
 #define I2C_NO_STATE               0xF8  // Kein Status
-#define I2C_BUS_ERROR              0x00  // Bus Error durch Illegale START oder STOP Kondition
+#define I2C_BUS_ERROR              0x00  // Bus Error durch illegale START oder STOP Kondition
 
 //********************** Makros für die Übertragung ****************************
 #define I2C_TWCR_Initialise() (TWCR = (1<<TWEN)|(0<<TWIE)|(0<<TWINT)|(0<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|(0<<TWWC))
@@ -53,11 +53,10 @@ struct I2C_TxData_t
 {
 	uint8_t Address;		// Adresse ist 7 Byte lang
 	uint8_t NumberOfBytes;  // Anzahl bytes ohne Adresse
-	uint8_t TxBytes[10];		// Datenarray
+	uint8_t TxBytes[10];	// Datenarray
 	void (*callback_function)(I2C_TxRxError_t);
 
 };
-typedef struct I2C_TxData_t I2C_TxData_t;
 //************** Funktionsdeklarationen ***********************
 void I2C_Initialise(void);
 
