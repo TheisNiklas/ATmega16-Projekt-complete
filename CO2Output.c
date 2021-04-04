@@ -7,63 +7,68 @@
 
 #include "CO2Output.h"
 
-void SendLinesToLCD();
-
-void CO2Output_Init(SensorData_t* sensorData, volatile uint8_t* Port, LCD_CursorSetting_t cursor, CO2Output_AlignValueRight_t align)
+CO2Output_Error_t CO2Output_Init(SensorData_t* sensorData, LCD_Settings_t* LCDSettings, CO2Output_AlignValueRight_t align)
 {
-	LCD_Init(Port, cursor);
+	LCDSettings->LineCount = LINE_COUNT;
+	LCDSettings->Linelength = MAX_CHAR_COUNT;
+	LCDSettings->LineList = (char*) &OutputData;
+	LCD_Init(LCDSettings);
 	SensorData = sensorData;
-	CurrentLine = 0;
 	AlignSetting = align;
-	//LCD_UpdateData((char*) &OutputData, MAX_CHAR_COUNT, 6);
-	//SendLinesToLCD();
 	CO2Output_UpdateData();
-	CO2Output_UpdateLEDs();
+	
+	return CO2Output_NoError;
 }
 
-void CO2Output_UpdateData()
+CO2Output_Error_t CO2Output_UpdateData()
 {
+	if (SensorData == 0)
+	{
+		return CO2Output_Error;	
+	}
 	char tmp[20];
 	ConvertFloatToCharArray(tmp, SensorData->co2_value_f);
 	sprintf(OutputData.co2Value, "CO2: %s ppm", tmp);
 	ConvertFloatToCharArray(tmp, SensorData->humidity_value_f);
 	sprintf(OutputData.humidityValue, "Humidity: %s%%", tmp);
 	ConvertFloatToCharArray(tmp, SensorData->temperature_value_f);
-	sprintf(OutputData.temperatureValue, "Temp: %sßC", tmp); //ß wegen ROM Code A00
+	sprintf(OutputData.temperatureValue, "Temp: %sßC", tmp); //ß wegen ROM Code A00 (°)
 	sprintf(OutputData.firmwareVersion, "Firmware: %d.%d", (SensorData->firmware_version_u16 >> 8), (SensorData->firmware_version_u16 & 0xFF));
 	if (SensorData->MeasState_en == 1) sprintf(OutputData.measState, "MeasState: On");
 	else sprintf(OutputData.measState, "MeasState: Off");
 	if (SensorData->AutocalibMode_en == 1) sprintf(OutputData.autocalibMode, "AutoCalib: On");
 	else sprintf(OutputData.autocalibMode, "AutoCalib: Off");
-	//LineList = (char*) &OutputData;
 	LCD_UpdateData((char*) &OutputData, MAX_CHAR_COUNT, 6);
-	//SendLinesToLCD();
-	return;
+	CO2Output_UpdateLEDs();
+	return CO2Output_NoError;
 }
 
-void CO2Output_MoveUp()
+CO2Output_Error_t CO2Output_MoveUp()
 {
 	LCD_MoveUp();
+	return CO2Output_NoError;
 }
 
-void CO2Output_MoveDown()
+CO2Output_Error_t CO2Output_MoveDown()
 {
 	LCD_MoveDown();
+	return CO2Output_NoError;
 }
 
-void CO2Output_UpdateLEDs()
+CO2Output_Error_t CO2Output_UpdateLEDs()
 {
 	PORTD &= 0b10001111;
-	if (SensorData->co2_value_f < 1000.0f)
+	if (SensorData->co2_value_f <= 1000)
 	{
-		PORTD |= 0b01000000;
+		PORTD |= 0b00010000;
 	}
-	else if (SensorData->co2_value_f >= 1000.0f && SensorData->co2_value_f <= 2000.0f)
+	else if (SensorData->co2_value_f > 1000 && SensorData->co2_value_f <= 2000)
 	{
 		PORTD |= 0b00100000;
 	}
 	else
 	{
-		PORTD |= 0b00010000;
+		PORTD |= 0b01000000;
 	}
+	return CO2Output_NoError;
 }

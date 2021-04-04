@@ -55,21 +55,29 @@ int main(void)
 		.ambient_pressure_in_mbar_u16 = 0,
 		.temp_offset_u16 = 0
 	};
-	CO2Output_Init(&sensorData, &LCDPORT, CursorOff, NoAlign);
+	
+	LCD_Settings_t lcdSettings =
+	{
+		.Cursor = CursorOff,
+		.Port = &LCDPORT,
+		.PortDDR = &LCDDDR,
+		.PortPIN = &PINB
+	};
 	
 	struct Timer_Settings_t timerSettings =
 	{
-		.CTCMode = CTCTopOCR1A,
-		.PWNCOM1A = NoPWM,
+		.CompareBValue = 0,
+		.CTCMode = CTCTopOCR1A
 	};
-	uint16_t CompA = 0;
-	Timer_calculateTimerSettings_ms(&CompA, &(timerSettings.ClockSignal), 3000);
 	
-	Timer_init(CompA, 0, timerSettings);
+	CO2Output_Init(&sensorData, &lcdSettings, NoAlign);
+	
+	Timer_calculateTimerSettings_ms(&(timerSettings.CompareAValue), &(timerSettings.ClockSignal), 3000);
+	
+	Timer_init(timerSettings);
 	Timer_addInterrupt(InterruptCompareA, &timerInterruptFlag);
 
 		
-	//TODO: InitSensor with Pointer
 	CO2_InitSensor(&sensorData, &Sensorconfig);
 	//Config
 	CO2_ConfigSensor();
@@ -80,7 +88,6 @@ int main(void)
 	{
 		if (timerInterruptFlag)
 		{
-			//TODO: Werte abholen CO2_StartMeasurement();
 			CO2_GetDataReadyStatus();		
 			if(sensorData.new_data_available_u16)
 			{
@@ -89,17 +96,6 @@ int main(void)
 				
 			}
 			
-			
-			if (timerLEDOutput)
-			{
-				PORTD &= 0b11111011;
-				timerLEDOutput = 0;
-			}
-			else
-			{
-				PORTD |= 0b00000100;
-				timerLEDOutput = 1;
-			}
 			timerInterruptFlag = 0;
 		}
 		buttonUp = BUTTONUP;
@@ -107,13 +103,6 @@ int main(void)
 		if ((buttonUp != buttonUp_before) && buttonUp == 1 && buttonDown == 0)
 		{
 			CO2Output_MoveUp();
-			/*LCD_Clear();
-			float deb = 230.5f;
-			char deb1[40];
-			
-			ConvertFloatToCharArray(deb1, deb);
-			
-			LCD_Write2Lines(deb1, NULL);*/
 		}
 		buttonUp_before = buttonUp;
 		if ((buttonDown != buttonDown_before) && buttonDown == 1 && buttonUp == 0)

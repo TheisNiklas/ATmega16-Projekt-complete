@@ -11,6 +11,9 @@
 
 #include "Timer.h"
 
+enum Timer_PWMCOM1A_t {NoPWM, PWNNormal, PWMInverted};
+typedef enum Timer_PWMCOM1A_t Timer_PWMCOM1A_t;
+
 ISR(TIMER1_COMPA_vect)
 {
 	if(IRCompAFlag != 0)
@@ -27,59 +30,59 @@ ISR(TIMER1_COMPB_vect)
 	}
 }
 
-Timer_Error_t Timer_init(uint16_t compareAValue, uint16_t compareBValue, Timer_Settings_t timerSettings)
+Timer_Error_t Timer_init(Timer_Settings_t timerSettings)
 {
 	ClockSignal = timerSettings.ClockSignal;
 	
 	TCCR1A = 0b00000000;
 	TCCR1B = timerSettings.CTCMode << WGM12 | timerSettings.ClockSignal;
 	
-	OCR1A = compareAValue;
-	OCR1B = compareBValue;
+	OCR1A = timerSettings.CompareAValue;
+	OCR1B = timerSettings.CompareBValue;
 	
 	TCNT1 = 0;
 	
 	InitFlag = 1;
-	return NoError;
+	return Timer_NoError;
 }
 
 Timer_Error_t Timer_start()
 {
 	if (!InitFlag || ClockSignal == CSTimerStop)
 	{
-		return ErrorNoCSSet;
+		return Timer_ErrorNoCSSet;
 	}
 	TCCR1B |= ClockSignal;
 	TCNT1 = 0;
-	return NoError;
+	return Timer_NoError;
 }
 
 Timer_Error_t Timer_stop()
 {
 	TCCR1B &= ~(CSTimerStop);
-	return NoError;
+	return Timer_NoError;
 }
 
 Timer_Error_t Timer_reset()
 {
 	TCNT1 = 0;
-	return NoError;
+	return Timer_NoError;
 }
 
-Timer_Error_t Timer_addInterrupt(enum Timer_Interrupt_t interrupt, volatile uint8_t* irFlag)
+Timer_Error_t Timer_addInterrupt(Timer_Interrupt_t inter, volatile uint8_t* irFlag)
 {
-	TIMSK |= 1 << interrupt;
+	TIMSK |= 1 << inter;
 	SREG |= 1 << SREG_I;
 	IRCompAFlag = irFlag;
 	TCNT1 = 0;
-	return NoError;
+	return Timer_NoError;
 	
 }
 
-Timer_Error_t Timer_removeInterrupt(enum Timer_Interrupt_t interrupt)
+Timer_Error_t Timer_removeInterrupt(Timer_Interrupt_t inter)
 {
-	TIMSK &= ~(1 << interrupt);
-	return NoError;
+	TIMSK &= ~(1 << inter);
+	return Timer_NoError;
 }
 
 Timer_Error_t Timer_calculateTimerSettings_s(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint8_t seconds)
@@ -95,13 +98,13 @@ Timer_Error_t Timer_calculateTimerSettings_s(uint16_t* compareAValue, Timer_Cloc
 		}
 		else
 		{
-			//Error
+			return Timer_Error;
 		}
 	}
 	*compareAValue = (F_CPU / prescaler[i]) * seconds;
 	*clockSignal = clockSignals[i];
 	
-	return NoError;
+	return Timer_NoError;
 }
 
 Timer_Error_t Timer_calculateTimerSettings_ms(uint16_t* compareAValue, Timer_ClockSignal_t* clockSignal, uint16_t ms)
@@ -117,11 +120,11 @@ Timer_Error_t Timer_calculateTimerSettings_ms(uint16_t* compareAValue, Timer_Clo
 		}
 		else
 		{
-			//Error
+			return Timer_Error;
 		}
 	}
 	*compareAValue = (F_CPU / 1000 / prescaler[i]) * ms;
 	*clockSignal = clockSignals[i];
 
-	return NoError;
+	return Timer_NoError;
 }
