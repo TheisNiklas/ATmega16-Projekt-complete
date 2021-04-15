@@ -57,6 +57,7 @@ struct I2C_TxData_t
 	void (*callback_function)(I2C_TxRxError_t);
 
 };
+typedef struct I2C_TxData_t I2C_TxData_t;
 //************** Funktionsdeklarationen ***********************
 void I2C_Initialise(void);
 
